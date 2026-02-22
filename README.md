@@ -1,96 +1,143 @@
 # HyperVest
 
-### *The end of equity vesting scandals. Forever.*
+### *Programmable Equity. Not just vesting on a blockchain — equity that unlocks when value is created.*
 
 > **Hackin'Dau 2026** — Built on HyperEVM Testnet (Chain ID 998)
 
 ---
 
-## The Problem Nobody Talks About
+## The Broken System Nobody Wants to Fix
 
-Every year, employees get promised equity. Every year, companies fold, get acquired, or simply gaslight their own workers out of what they earned. The contract is a PDF. The vesting schedule is a spreadsheet. The enforcer is an HR department.
+The startup equity system is worth $13 trillion. It runs on PDFs, spreadsheets, and lawyers who bill by the hour.
 
-**That's not a system. That's a handshake.**
+Here are the three ways it fails — every single day.
 
-Startups have raised billions on the promise of equity alignment between founders and employees. Yet the mechanism for enforcing that promise is a Word document stored on someone's laptop. In 2026. On a planet with programmable money.
+### 1. It costs a fortune and takes forever
 
-This is embarrassing. We fixed it.
+Issuing stock-options or BSPCEs costs thousands in legal fees. Every. Single. Time. Managing a cap table with employees across 5 countries means a new lawyer in each jurisdiction, a different legal framework, months of back-and-forth — just to give someone shares they earned.
+
+A developer in Lagos. A designer in Seoul. A founding engineer in Paris. Today, giving any of them real equity is either legally impossible or prohibitively expensive. So companies give up. They pay in cash instead. The alignment disappears.
+
+**The legal industry has made itself the mandatory middleware for employee ownership. We remove it.**
+
+### 2. It rewards presence, not performance
+
+The standard cliff model — 1 year cliff, 4 years total — was invented for a world where showing up was enough. Today it's a slow-motion disaster.
+
+An employee can coast for 11 months, hit their cliff, grab 25% of their equity, and quit on day 366. The company is out talent and capital. The team is demoralised. The cap table is diluted for nothing.
+
+**Vesting based on time passing is skeuomorphic. It's the old world wearing a blockchain costume.**
+
+### 3. Employees never "feel" their equity
+
+The agreement gets signed. Then it goes in a drawer. The employee doesn't see it, doesn't feel it accumulating, doesn't connect their daily work to the value they're building. Equity becomes a vague promise that might pay off in 7 years. Motivation flatlines.
 
 ---
 
-## What HyperVest Does
+## The Market
 
-HyperVest puts equity vesting **entirely on-chain**. No intermediaries. No trust required. No way to rug your employees.
+| | |
+|---|---|
+| **$13 000 000 000 000** | Global private equity market — frozen, illiquid, managed with 1990s technology |
+| **~$30 000 / year** | Average legal spend per startup just to manage equity grants |
+| **73%** | Startups that now hire internationally — and face a legal wall when trying to give them ownership |
 
-An employer creates a vesting plan in one transaction. A smart contract vault holds the tokens. The math is immutable. Once the cliff passes, tokens unlock linearly — automatically, transparently, unstoppably. The employee claims what they earned. **Nobody can take it back.**
+The entire private equity market is waiting to be programmable. Nobody has done it right yet.
 
-And because equity shouldn't be a tradeable casino chip, the tokens are **Soulbound** — non-transferable until properly vested and claimed. You can't dump your unvested equity.
+---
+
+## HyperVest: Programmable Equity
+
+We built the infrastructure to make equity smart. Not just time-locked — **performance-driven**.
+
+### What that means in practice
+
+**Company-level vesting acceleration**
+The startup hits its MRR target. Stripe confirms it on-chain via oracle. The smart contract automatically accelerates vesting for the entire team. Real profit sharing — in real time. Not at the next board meeting. Not in the next annual review. Now.
+
+**Individual KPI triggers**
+A developer closes a critical bug. A sales rep signs a major contract. A GitHub commit ships a key feature. The smart contract detects the event and drops an equity bonus directly into their wallet. No HR form. No manager approval. The code is the judge.
+
+**Full transparency, always**
+Every employee sees their equity accumulating in real time. Every token that has unlocked, every token still locked, every second ticking toward the next release. The dashboard doesn't lie. It can't — it's reading directly from the chain.
+
+This is what a16z meant when they wrote: *"Tokenization is often skeuomorphic — anchored in how assets work today, and not taking advantage of crypto-native features."*
+
+**Putting time-based vesting on a blockchain is skeuomorphic. Linking equity to real-time performance via smart contracts is crypto-native.**
+
+---
+
+## Live Demo
+
+> Contracts are deployed on HyperEVM Testnet. Everything below is real and on-chain.
+
+### Employer side — `/admin`
+
+1. Select the **Employer** role — no wallet setup required
+2. Set a beneficiary address, cliff period, total duration, and token allocation
+3. Hit **Create Vesting Plan** — one transaction
+4. A vault is deployed, tokens are locked, the schedule is running
+
+*In production: the cliff and duration parameters would be fed by oracle data — MRR growth, GitHub activity, revenue milestones. The smart contract interface is already designed for it.*
+
+### Employee side — `/employee`
+
+1. Select the **Employee** role
+2. Enter the employer address
+3. Watch the equity unlock **live** — the counter ticks every second
+4. Once past cliff: hit **Claim** — tokens land in the wallet instantly
+5. Try to transfer them to another address → the transaction reverts
+
+**"SoulboundToken: transfers are disabled"**
+
+That's not an error. That's the policy. Equity is earned, not traded.
 
 ---
 
 ## Why HyperEVM
 
-We didn't pick HyperEVM because it was easy. We picked it because it's the only chain fast enough to make real-time vesting feel like a product instead of a proof of concept.
+Performance-based vesting isn't a batch job. It's a continuous stream of events — oracle price feeds, GitHub webhooks, revenue APIs — each one potentially triggering a smart contract execution.
 
-Sub-second finality. Native liquidity from Hyperliquid's perpetual DEX. A growing ecosystem that actually ships. HyperVest is a native HyperEVM application — not a port, not an afterthought.
+For that, you need infrastructure that is:
+- Fast enough to handle real-time event streams without users waiting
+- Cheap enough that microtransactions (small equity releases) don't cost more in gas than they're worth
+- Liquid enough that the equity tokens are useful the moment they land
 
-The live countdown ticking on the employee dashboard? That's not a trick. That's a 1-second client-side timer synced to an immutable on-chain schedule. **The contract is the source of truth.**
+HyperEVM is the only chain where all three are true simultaneously. Sub-second finality. Minimal gas costs. Native access to Hyperliquid's perpetual orderbook — which becomes the settlement layer the moment this equity needs to move.
+
+HyperVest is not a port of an Ethereum project. It is a native HyperEVM application, designed from the first line of code for this infrastructure.
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    One transaction from the employer            │
-│                                                                 │
-│   VestingFactory.createVesting(employee, cliff, duration, amt)  │
-│         │                                                       │
-│         ├── 1. Deploys a VestingVault (one per grant)           │
-│         ├── 2. Whitelists the vault on the SBT contract         │
-│         └── 3. Mints tokens directly into the vault             │
-│                         │                                       │
-│              Tokens are locked. Math is running.               │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│                     Employer: one transaction                        │
+│                                                                      │
+│  VestingFactory.createVesting(employee, cliff, duration, allocation) │
+│        │                                                             │
+│        ├── 1. Deploys a VestingVault (one per grant)                 │
+│        ├── 2. Whitelists the vault on the SBT contract               │
+│        └── 3. Mints tokens directly into the vault                   │
+│                          │                                           │
+│    Tokens are locked. Math is running. Performance decides the rest. │
+└──────────────────────────────────────────────────────────────────────┘
 
 SyntheticEquityToken (ERC20 Soulbound)
   — Non-transferable by default (OpenZeppelin v5 _update hook)
-  — Only whitelisted vault → employee transfers allowed
-  — Once claimed: yours forever, but you cannot sell it
+  — Only whitelisted vault → employee transfers are allowed
+  — Once claimed: yours permanently, non-transferable
 
 VestingVault (immutable, one per grant)
-  — Cliff period: zero vesting until elapsed
-  — Linear vesting after cliff, capped at total allocation
-  — release() is permissionless: anyone can trigger the claim
-  — vestingSchedule() returns everything in a single RPC call
+  — Cliff period: zero unlocking until condition is met
+  — Linear release after cliff, capped at total allocation
+  — release() is permissionless: anyone can trigger a claim
+  — vestingSchedule() returns all parameters in a single RPC call
+  — Architecture ready for oracle-driven cliff and duration parameters
 ```
 
 **3 contracts. 234 lines of Solidity. 7 passing tests. Zero trust assumptions.**
-
----
-
-## Live Demo
-
-> Contracts are deployed on HyperEVM Testnet. Everything below happens on-chain.
-
-### Employer side — `/admin`
-
-1. Select the **Employer** role
-2. Set an employee address, cliff (e.g. 60s), duration (e.g. 300s), and allocation
-3. Hit **Create Vesting Plan**
-4. One transaction → vault deployed, tokens locked, schedule running
-
-### Employee side — `/employee`
-
-1. Select the **Employee** role
-2. Enter the employer address
-3. Watch the live countdown tick in real time
-4. Once past cliff: hit **Claim** — tokens land in the wallet instantly
-5. Try to transfer them to another wallet → transaction reverts
-
-**"SoulboundToken: transfers are disabled"**
-
-That's not an error message. That's a policy.
 
 ---
 
@@ -111,19 +158,19 @@ That's not an error message. That's a policy.
 
 ```bash
 # 1. Clone and install
-git clone <repo>
+git clone https://github.com/ebenbaruk/hypervest
 cd frontend && npm install
 
-# 2. Fill frontend/.env.local
-NEXT_PUBLIC_TOKEN_ADDRESS=0x604038CBEA30e8058e8a6fACC177898aAca59867
-NEXT_PUBLIC_FACTORY_ADDRESS=0x091e807d200d1141cFFBBEE66e6F30C64F7Cd526
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<your_id>
+# 2. Copy and fill the env file
+cp .env.local.example .env.local
+# Add your WalletConnect project ID (free at cloud.walletconnect.com)
+# Contract addresses are pre-filled — contracts are already deployed
 
 # 3. Start
 npm run dev
 ```
 
-Open http://localhost:3000 — demo wallets are pre-loaded, no MetaMask required.
+Open http://localhost:3000 — demo wallets are pre-loaded, no MetaMask needed.
 
 ---
 
@@ -151,13 +198,13 @@ Suite result: ok. 7 passed; 0 failed
 ## Deploy Fresh Contracts
 
 ```bash
-# Enable HyperEVM big blocks (needed for contract deployment)
+# Enable HyperEVM big blocks (required for contract deployment)
 PRIVATE_KEY=0x... python scripts/enable_big_blocks.py --enable
 
 # Deploy
 cd contracts
 forge script script/Deploy.s.sol:Deploy \
-  --rpc-url https://rpc.hyperliquid-testnet.xyz/evm \
+  --rpc-url https://rpcs.chain.link/hyperevm/testnet \
   --private-key $PRIVATE_KEY \
   --broadcast \
   --legacy
@@ -168,87 +215,27 @@ PRIVATE_KEY=0x... python scripts/enable_big_blocks.py --disable
 
 ---
 
-## What Makes This Different
+## What This Unlocks Tomorrow
 
-Most hackathon vesting projects are a Gnosis Safe with a time-lock. We built the entire primitive from scratch:
+HyperVest is Layer 1 of a larger stack. Because the vesting contract mathematically proves on-chain that *"this contributor holds X equity in company Y, unlocking on this schedule"*, a new financial layer becomes composable on top.
 
-- **Multiple grants per employee** — annual refreshes, milestone bonuses, all tracked independently
-- **Permissionless release** — the employer, employee, or anyone can trigger `release()`. The math is the authorization.
-- **Soulbound by design** — equity is earned, not traded. The token contract enforces this at the EVM level, not in a terms-of-service
-- **Single RPC call for the full schedule** — `vestingSchedule()` returns all 9 parameters in one call; no chatty multi-call patterns
-- **Real-time UI without hammering the RPC** — 1-second client-side interpolation + 30-second on-chain sync
+**Collateralized lending** — borrow USDC against unvested equity, deploy it as margin on Hyperliquid's orderbook.
 
----
+**OTC factoring** — assign future claim rights to a liquidity provider for immediate cash, no lawyers, settling in seconds.
 
-## Layer 2: What You Can Build on Top
+**Synthetic pre-IPO perpetuals** — let the market go long or short on private companies years before any IPO. Employees hedge their concentration risk. Traders get a new asset class. Hyperliquid gets a perpetual product that no other exchange can list — because no other chain has the primitive underneath.
 
-HyperVest is a **primitive**. The vesting contract is not the product — it's the foundation. Because the on-chain token mathematically proves *"this employee owns X equity in startup Y, unlocking on this schedule"*, an entirely new financial layer becomes possible. One that doesn't exist anywhere in traditional finance.
-
-Here's what gets unlocked.
-
----
-
-### A — Collateralized Lending Against Unvested Equity
-
-> *"I have $100k vesting next year. I need $20k today."*
-
-A lending protocol reads the vesting vault directly. No credit score. No bank. No application. The smart contract is the proof of collateral. The employee borrows USDC against their locked tokens — and on Hyperliquid, that borrowed USDC can be deployed as initial margin to trade perps. **Your equity becomes your trading account.**
-
-The liquidation logic is clean: if the startup fails and the tokens go to zero, the lender's collateral evaporates — priced in by the LTV ratio. If the startup moons, the employee repays and reclaims full ownership. Trustless. Bilateral. Instant.
-
----
-
-### B — OTC Vesting Factoring (The Lawyers Are Crying)
-
-> *"I need cash now. I'll take a discount."*
-
-The employee can't transfer their SBT tokens — they're soulbound. But they can sign a transaction that says: *"I assign the right to claim my next 1,000 vested tokens to this address, in exchange for 800 USDC right now."*
-
-That's invoice factoring. On-chain. With no lawyers, no notaries, no 30-day wire transfer delays, and no middleman taking 15%. A secondary OTC market for private startup equity — accessible to any liquidity provider in the world, settling in seconds.
-
-The discount rate becomes a real-time signal of how the market values a startup's survival odds.
-
----
-
-### C — Synthetic Pre-IPO Perpetuals (The Hyperliquid Native Play)
-
-> *"Let traders speculate on whether your startup is going to make it."*
-
-HyperVest mints a **$ACME-PERP** market. The underlying is the startup's implied valuation, derived from on-chain vesting activity and OTC deal flow. Traders go long or short on private companies — years before any IPO.
-
-For the employee, this is a hedge. **They can short their own company** to offset concentration risk while holding their full equity position. For the ecosystem, this is price discovery on private markets that has never existed before. For Hyperliquid, this is a new class of perpetual that no other exchange can offer — because no other chain has the vesting primitive underneath.
-
-This is not DeFi cosplay. This is the Bloomberg terminal for startup equity, running on-chain.
-
----
-
-### D — Talent Index Vaults (The Diversification Play)
-
-> *"What if 9 startups fail but one becomes the next OpenAI?"*
-
-Employees from different companies pool their vesting rights into a shared vault. The vault issues a single token — call it `$AI-TALENT-2026`. One token represents a fractional claim across 50 startup equity positions simultaneously.
-
-If 49 fail, the one that wins covers everyone. It's diversification across the private market — a thing that today requires being a VC fund with $100M AUM and a Sequoia referral. On HyperVest, any employee with a vesting schedule can access it.
-
-This is the ultimate hedge against the startup lottery. A decentralized index fund for human capital.
-
----
-
-### The Stack Vision
+**Talent index vaults** — pool vesting rights across companies into a single diversified token. The index fund for human capital, accessible to any contributor worldwide.
 
 ```
-Layer 2 — DeFi primitives (lending, OTC, perps, vaults)
+Layer 2 — DeFi (lending, OTC, perps, index vaults)
     └── reads from ↓
 
-Layer 1 — HyperVest (on-chain vesting, SBT equity tokens)
+Layer 1 — HyperVest (programmable equity, SBT tokens)
     └── runs on ↓
 
-HyperEVM — the only chain with the speed and liquidity to make this real
+HyperEVM — speed + liquidity to make real-time equity real
 ```
-
-HyperVest does not try to build all of Layer 2 in a hackathon weekend. It builds the one thing that makes Layer 2 possible: **a credible, immutable, on-chain proof of equity ownership.**
-
-Everything else is composability. That's the whole point.
 
 ---
 
@@ -258,4 +245,4 @@ https://testnet.purrsec.com
 
 ---
 
-*Built for Hackin'Dau 2026. Deployed on HyperEVM. Tested on mainnet trust issues.*
+*Built for Hackin'Dau 2026. Deployed on HyperEVM. Replacing lawyers with smart contracts since day one.*
