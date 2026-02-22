@@ -60,14 +60,16 @@ export function CreateVestingForm() {
     placeholder: string,
     type = "text"
   ) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-sm text-gray-400">{label}</label>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-medium uppercase tracking-wide text-gray-500">
+        {label}
+      </label>
       <input
         type={type}
         placeholder={placeholder}
         value={form[key]}
         onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-        className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-violet-500 font-mono text-sm"
+        className="rounded-lg border border-gray-700/60 bg-gray-800/60 px-3.5 py-2.5 font-mono text-sm text-white placeholder-gray-600 transition-colors focus:border-violet-500/80 focus:outline-none focus:bg-gray-800"
         required
       />
     </div>
@@ -75,45 +77,65 @@ export function CreateVestingForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      {field("Employee Wallet Address", "beneficiary", "0x...")}
 
-      <div className="grid grid-cols-2 gap-3">
-        {field("Cliff (seconds)", "cliffSeconds", "60", "number")}
-        {field("Duration (seconds)", "durationSeconds", "300", "number")}
+      {field("Employee Wallet Address", "beneficiary", "0x…")}
+
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-3">
+          {field("Cliff (seconds)", "cliffSeconds", "60", "number")}
+          {field("Total Duration (seconds)", "durationSeconds", "300", "number")}
+        </div>
+        <p className="text-xs text-gray-600">
+          Cliff = lock-up period before any tokens unlock. Duration = full vesting period from start.
+        </p>
       </div>
 
       {field("Token Allocation (HVE)", "allocation", "100000", "number")}
 
-      <p className="text-xs text-gray-600">
-        Multiple grants per employee are allowed — each creates an independent vault.
+      <p className="text-xs text-gray-700">
+        Multiple grants per employee are allowed — each deploys an independent vault.
       </p>
 
       <button
         type="submit"
         disabled={isPending || isConfirming}
-        className="mt-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+        className="relative mt-1 overflow-hidden rounded-xl py-3 font-bold text-sm tracking-wide text-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50"
+        style={{ background: "linear-gradient(135deg, #6d28d9, #7c3aed, #8b5cf6)" }}
       >
-        {isPending
-          ? "Signing transaction…"
-          : isConfirming
-          ? "Confirming on-chain…"
-          : "Create Vesting Plan"}
+        {isPending ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            Signing transaction…
+          </span>
+        ) : isConfirming ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            Confirming on-chain…
+          </span>
+        ) : (
+          "Create Vesting Plan"
+        )}
       </button>
 
       {isSuccess && (
-        <p className="text-green-400 text-sm text-center">
-          ✓ Vesting plan created!{" "}
+        <div className="rounded-lg border border-green-800/50 bg-green-950/40 px-3 py-2.5 text-center text-sm text-green-400">
+          Vesting plan created!{" "}
           <a
             href={`https://testnet.purrsec.com/tx/${hash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline"
+            className="underline underline-offset-2 opacity-80 hover:opacity-100"
           >
-            {hash?.slice(0, 10)}…
+            View on explorer
           </a>
-        </p>
+        </div>
       )}
-      {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+
+      {error && (
+        <div className="rounded-lg border border-red-800/50 bg-red-950/40 px-3 py-2 text-center text-xs text-red-400">
+          {error}
+        </div>
+      )}
     </form>
   );
 }

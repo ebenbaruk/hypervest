@@ -16,46 +16,81 @@ export function VestingCard({ vaultAddress }: VestingCardProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 animate-pulse">
-        <div className="h-6 bg-gray-800 rounded w-1/3 mb-4" />
-        <div className="h-3 bg-gray-800 rounded w-full mb-2" />
-        <div className="h-3 bg-gray-800 rounded w-2/3" />
+      <div className="animate-pulse rounded-2xl border border-gray-800 bg-gray-900/80 p-6 flex flex-col gap-5">
+        <div className="h-5 w-1/3 rounded-md bg-gray-800" />
+        <div className="h-20 rounded-xl bg-gray-800" />
+        <div className="h-2.5 rounded-full bg-gray-800" />
+        <div className="grid grid-cols-2 gap-3">
+          {[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-lg bg-gray-800" />)}
+        </div>
       </div>
     );
   }
 
   if (!params) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 text-gray-500 text-center">
+      <div className="rounded-2xl border border-gray-800 bg-gray-900/80 p-8 text-center text-sm text-gray-500">
         No vesting schedule found.
       </div>
     );
   }
 
   const isInCliff = timer.secsUntilCliff > 0n;
+  const isFullyVested = !isInCliff && timer.secsUntilEnd === 0n;
+
+  const statusConfig = isInCliff
+    ? { label: "CLIFF PERIOD", dot: "bg-amber-400", text: "text-amber-400", badge: "border-amber-800/50 bg-amber-950/40 text-amber-400" }
+    : isFullyVested
+    ? { label: "FULLY VESTED", dot: "bg-green-400", text: "text-green-400", badge: "border-green-800/50 bg-green-950/40 text-green-400" }
+    : { label: "VESTING", dot: "bg-violet-400 animate-pulse", text: "text-violet-300", badge: "border-violet-800/50 bg-violet-950/40 text-violet-300" };
+
+  const countdownBg = isInCliff
+    ? "border-amber-800/30 bg-amber-950/20"
+    : isFullyVested
+    ? "border-green-800/30 bg-green-950/20"
+    : "border-violet-800/30 bg-violet-950/20";
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 flex flex-col gap-5">
+    <div className="flex flex-col gap-5 rounded-2xl border border-gray-800 bg-gray-900/80 p-6 backdrop-blur">
+
       {/* Header */}
-      <div>
-        <h2 className="text-xl font-bold text-white">Your Equity Vest</h2>
-        <p className="text-xs text-gray-500 mt-1 font-mono break-all">{vaultAddress}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-lg font-bold text-white">Your Equity Grant</h2>
+          <p className="mt-0.5 truncate font-mono text-xs text-gray-600">
+            {vaultAddress}
+          </p>
+        </div>
+        <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold tracking-widest ${statusConfig.badge}`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${statusConfig.dot}`} />
+          {statusConfig.label}
+        </span>
       </div>
 
-      {/* Live progress bar */}
+      {/* Countdown — the star of the show */}
+      <div className={`rounded-xl border p-4 ${countdownBg}`}>
+        <p className="mb-1 text-xs font-medium uppercase tracking-widest text-gray-500">
+          {isInCliff ? "Cliff ends in" : isFullyVested ? "Status" : "Fully vested in"}
+        </p>
+        <p className={`text-4xl font-black tracking-tight tabular-nums ${statusConfig.text}`}
+          style={{ fontVariantNumeric: "tabular-nums" }}>
+          {isInCliff
+            ? formatCountdown(timer.secsUntilCliff)
+            : isFullyVested
+            ? "Complete"
+            : formatCountdown(timer.secsUntilEnd)}
+        </p>
+      </div>
+
+      {/* Progress */}
       <ProgressBar progress={timer.progress} label="Vested" />
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3 text-sm">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2.5 text-sm">
         <Stat label="Total Allocation" value={`${formatTokens(params.totalAllocation)} HVE`} />
-        <Stat label="Vested" value={`${formatTokens(timer.vested)} HVE`} highlight />
-        <Stat label="Claimable Now" value={`${formatTokens(timer.claimable)} HVE`} highlight />
+        <Stat label="Vested" value={`${formatTokens(timer.vested)} HVE`} accent="violet" />
+        <Stat label="Claimable Now" value={`${formatTokens(timer.claimable)} HVE`} accent="violet" />
         <Stat label="Already Claimed" value={`${formatTokens(params.released)} HVE`} />
-        <Stat
-          label={isInCliff ? "Cliff ends in" : "Fully vested in"}
-          value={isInCliff ? formatCountdown(timer.secsUntilCliff) : formatCountdown(timer.secsUntilEnd)}
-        />
-        <Stat label="Status" value={isInCliff ? "In cliff period" : timer.secsUntilEnd === 0n ? "Fully vested" : "Vesting"} />
       </div>
 
       {/* Claim */}
@@ -71,16 +106,20 @@ export function VestingCard({ vaultAddress }: VestingCardProps) {
 function Stat({
   label,
   value,
-  highlight,
+  accent,
 }: {
   label: string;
   value: string;
-  highlight?: boolean;
+  accent?: "violet" | "green";
 }) {
   return (
-    <div className="bg-gray-800 rounded-lg px-3 py-2">
+    <div className="rounded-lg border border-gray-800/60 bg-gray-800/40 px-3 py-2.5">
       <p className="text-xs text-gray-500">{label}</p>
-      <p className={`font-semibold text-sm mt-0.5 ${highlight ? "text-violet-400" : "text-white"}`}>
+      <p className={`mt-0.5 font-bold text-sm ${
+        accent === "violet" ? "text-violet-400"
+        : accent === "green" ? "text-green-400"
+        : "text-white"
+      }`}>
         {value}
       </p>
     </div>
