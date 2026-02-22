@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useDemoWallet } from "@/contexts/DemoContext";
 import { DemoWalletButton } from "@/components/DemoWalletButton";
 import { CreateVestingForm } from "@/components/admin/CreateVestingForm";
+import { PerformanceSelector } from "@/components/admin/PerformanceSelector";
 
 export default function AdminPage() {
   const { role } = useDemoWallet();
@@ -42,13 +43,25 @@ export default function AdminPage() {
 
         {/* Content */}
         {isConnected ? (
-          <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-6 backdrop-blur"
-            style={{ boxShadow: "0 0 0 1px rgba(109,40,217,0.06) inset" }}>
-            <div className="mb-5 flex items-center gap-2">
-              <div className="h-4 w-1 rounded-full bg-violet-500" />
-              <h2 className="font-semibold text-white">New Vesting Plan</h2>
+          <div className="flex flex-col gap-4">
+            {/* Performance trigger selector */}
+            <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-5 backdrop-blur">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="h-4 w-1 rounded-full bg-violet-500" />
+                <h2 className="font-semibold text-white">Performance Trigger</h2>
+              </div>
+              <PerformanceSelector />
             </div>
-            <CreateVestingForm />
+
+            {/* Vesting plan form */}
+            <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-6 backdrop-blur"
+              style={{ boxShadow: "0 0 0 1px rgba(109,40,217,0.06) inset" }}>
+              <div className="mb-5 flex items-center gap-2">
+                <div className="h-4 w-1 rounded-full bg-violet-500" />
+                <h2 className="font-semibold text-white">Grant Parameters</h2>
+              </div>
+              <CreateVestingForm />
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-5 rounded-2xl border border-gray-800 bg-gray-900/70 p-12 text-center backdrop-blur">
